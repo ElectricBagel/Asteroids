@@ -8,6 +8,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.cooldown = 0
+        self.lives = 3
 
 # in the Player class
     def triangle(self):
@@ -38,6 +39,16 @@ class Player(CircleShape):
             self.move(dt * -1)
         if keys[pygame.K_SPACE]:
             self.shoot()
+
+        if self.position.x > SCREEN_WIDTH:
+            self.position.x = 0
+        elif self.position.x < 0:
+            self.position.x = SCREEN_WIDTH
+
+        if self.position.y > SCREEN_HEIGHT:
+            self.position.y = 0
+        elif self.position.y < 0:
+            self.position.y = SCREEN_HEIGHT
     
     def move(self, dt):
         unit_vector = pygame.Vector2(0, 1)
@@ -53,7 +64,10 @@ class Player(CircleShape):
             new_shot.velocity = new_angle * PLAYER_SHOOT_SPEED
             self.cooldown = PLAYER_SHOOT_COOLDOWN_SECONDS
 
-
+    def death(self):
+        self.lives -= 1
+        self.position.x = SCREEN_WIDTH / 2
+        self.position.y = SCREEN_HEIGHT / 2
 
 
 
