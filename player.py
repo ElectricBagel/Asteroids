@@ -9,6 +9,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.cooldown = 0
         self.lives = 3
+        self.score = 0
 
 # in the Player class
     def triangle(self):
@@ -68,6 +69,9 @@ class Player(CircleShape):
         self.lives -= 1
         self.position.x = SCREEN_WIDTH / 2
         self.position.y = SCREEN_HEIGHT / 2
+
+    def scoring(self, points):
+        self.score += points
 
 
 
