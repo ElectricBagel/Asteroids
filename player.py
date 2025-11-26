@@ -10,6 +10,11 @@ class Player(CircleShape):
         self.cooldown = 0
         self.lives = 3
         self.score = 0
+        self.friction = 0.01
+        self.acceleration = 0.05
+        self.unit_vector = pygame.Vector2(0, 1)
+        self.velocity = pygame.Vector2(0,0)
+
 
 # in the Player class
     def triangle(self):
@@ -29,15 +34,19 @@ class Player(CircleShape):
     def update(self, dt):
         keys = pygame.key.get_pressed()
         self.cooldown -= dt
+        if not keys[pygame.K_w] and not keys[pygame.K_s]:
+            self.drift(dt)
+        else:
+            self.position += self.velocity * dt
 
         if keys[pygame.K_a]:
             self.rotate(dt *-1)
         if keys[pygame.K_d]:
             self.rotate(dt)
         if keys[pygame.K_w]:
-            self.move(dt)
+            self.move(dt, forward=True)
         if keys[pygame.K_s]:
-            self.move(dt * -1)
+            self.move(dt, forward=False)
         if keys[pygame.K_SPACE]:
             self.shoot()
 
@@ -51,12 +60,18 @@ class Player(CircleShape):
         elif self.position.y < 0:
             self.position.y = SCREEN_HEIGHT
     
-    def move(self, dt):
-        unit_vector = pygame.Vector2(0, 1)
-        rotated_vector = unit_vector.rotate(self.rotation)
-        rotated_with_speed_vector = rotated_vector * PLAYER_SPEED * dt
-        self.position += rotated_with_speed_vector
+    def move(self, dt, forward=True):
+        direction = 1 if forward else -1
+        forward_vec = self.unit_vector.rotate(self.rotation)
+        self.velocity += forward_vec * (PLAYER_SPEED * self.acceleration * direction)
+
+        if self.velocity.length() > PLAYER_SPEED:
+            self.velocity.scale_to_length(PLAYER_SPEED)
     
+    def drift(self,dt):
+        self.velocity *= (1 - self.friction)
+        self.position += self.velocity * dt
+
     def shoot(self):
         if self.cooldown <= 0:
             new_shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
